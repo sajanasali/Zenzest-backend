@@ -39,6 +39,22 @@ const userSchema=new mongoose.Schema<IUser>({
             type:String,
             
        },
+       
+       height:{
+          type:Number
+       },
+       bloodgroup:{
+          type:String
+       },
+       reason:{
+          type:String
+       },
+       allergies:{
+          type:String
+       },
+       weight:{
+          type:Number
+       },
        isBlocked:{
         type:Boolean,
         default:false
@@ -46,7 +62,12 @@ const userSchema=new mongoose.Schema<IUser>({
        isVerified:{
             type:Boolean,
             default:false
-       } 
+       } ,
+       wallet:{
+         type:Number,
+         default:0
+         
+       }
       
 
 

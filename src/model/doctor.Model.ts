@@ -33,6 +33,50 @@ const userSchema=new mongoose.Schema<IDoctor>({
             type:String,
             
        },
+       qualification:{
+          type:String
+       },
+       experience:{
+          type:String
+       },
+       education:{
+          type:String
+       },
+       certification:{
+          type:String
+       },
+       image:{
+          type:String
+       },
+       fees:{
+           type:Number,
+           default:500
+       },
+       slots:[
+         {
+           date:{
+             type:String
+           },
+           timeslots:{
+             type:Array
+           }
+         }
+       ],
+       bookedSlots:[
+         {
+           date:{
+             type:String
+           },
+           timeslots:{
+             type:Array
+           }
+         }
+       ],
+       status:{
+         type:String,
+         enum:['Pending','Approved','Rejected'],
+         default:'Pending'
+       },
        isBlocked:{
         type:Boolean,
         default:false
@@ -40,7 +84,11 @@ const userSchema=new mongoose.Schema<IDoctor>({
        isVerified:{
             type:Boolean,
             default:false
-       } 
+       } ,
+       compensation:{
+        type:Number,
+        default:0,
+       }
       
 
 

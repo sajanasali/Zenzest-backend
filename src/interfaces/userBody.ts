@@ -10,7 +10,12 @@ interface IUserBody {
   isBlocked?:boolean
    isVerified?:boolean,
    role?:string
-   
+   height?:number,
+   weight?:number,
+   reason?:string,
+   allergies?:string,
+   bloodgroup?:string,
+   wallet?:number
   }
   
   

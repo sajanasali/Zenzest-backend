@@ -6,7 +6,7 @@ import { HttpStatus } from "../enums/httpStatus";
 import userModel from "../model/userModel";
 const secret=process.env.secretkey||"itssecret";
 dotenv.config();
-function decodeToken(token: string): MyJWTPayLoad {
+function decodeToken(token: any): MyJWTPayLoad {
     return jwt.verify(token, "itssecret") as MyJWTPayLoad;
   }
 
@@ -29,6 +29,8 @@ export async function userAthentication(req:Request,res:Response,next:NextFuncti
                   };
 	}
     const decodedToken = decodeToken(token)
+    console.log(decodedToken)
+    const Userid=decodedToken.id
 
     if (decodedToken.role === "User") {
 		const user = await userModel.findById(decodedToken.id);
@@ -46,4 +48,26 @@ export async function userAthentication(req:Request,res:Response,next:NextFuncti
 
     
 }
+
+}
+export  async function useridGetting(req:Request,res:Response,next:NextFunction){
+  const testToken = req.headers.get('Authorization')
+	let token;
+
+	if (testToken && testToken.startsWith("bearer")) {
+		token = testToken.split(" ")[1];
+	}
+
+	if (!token) {
+		return {
+                    status: HttpStatus.UthorizationError,
+                    data: {
+                      success: false,
+                      message: "please login",
+                    },
+                  };
+	}
+  const decodedToken = decodeToken(token)
+  console.log(decodedToken)
+  const Userid=decodedToken.id
 }
