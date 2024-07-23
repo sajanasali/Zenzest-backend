@@ -2,7 +2,7 @@ interface Iappointment {
   userId: User;
   doctorId: Doctor;
   slotBooked: string;
-  status: "Scheduled" | "Cancelled" | "Completed" | "Confirmed";
+  status: "Scheduled" | "Cancelled" | "Completed" | "Confirmed"|"Prescribed";
   paymentMode: string[];
   amountPaid: number;
   adminAmount: number;

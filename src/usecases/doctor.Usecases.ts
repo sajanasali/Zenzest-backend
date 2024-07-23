@@ -103,7 +103,7 @@ class DoctorUsecases {
         };
       }
       const token = jwt.sign(response.data, secret, {
-        expiresIn: "1h", // Set token expiry to 1 hour
+        expiresIn: "12h", // Set token expiry to 1 hour
       });
       console.log("token", token);
       //  const decodedToken = this.decodeToken(token)
@@ -963,7 +963,106 @@ class DoctorUsecases {
   async getStatus(req: any,id:string) {
     try {
       const response = await this.doctorRepository.AppointmentById(id);
-      console.log(response, "profile responseeeeeeeeeee");
+      console.log(response, "profile responseeeeeeeeeee in doctorusecase");
+      return {
+        status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
+        data: {
+          success: response?.success,
+          message: response?.message,
+          user: response,
+        },
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.ServerError,
+        data: {
+          success: false,
+          message: `Server error`,
+        },
+      };
+    }
+  }
+
+  async prescription(req: any,id:string) {
+    try {
+      const response = await this.doctorRepository.presUpdate(id,req);
+     
+      console.log(response, "profile responseeeeeeeeeee in doctorusecase");
+      return {
+        status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
+        data: {
+          success: response?.success,
+          message: response?.message,
+          user: response,
+        },
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.ServerError,
+        data: {
+          success: false,
+          message: `Server error`,
+        },
+      };
+    }
+  }
+
+
+  async completed(id:string) {
+    try {
+      const response = await this.doctorRepository.completed(id);
+     
+      console.log(response, "profile responseeeeeeeeeee in doctorusecase");
+      return {
+        status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
+        data: {
+          success: response?.success,
+          message: response?.message,
+          appointment: response,
+        },
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.ServerError,
+        data: {
+          success: false,
+          message: `Server error`,
+        },
+      };
+    }
+  }
+
+  async prescriptioncompleted(id:string) {
+    try {
+      const response = await this.doctorRepository.prescriptioncompleted(id);
+     
+      console.log(response, "profile responseeeeeeeeeee in doctorusecase");
+      return {
+        status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
+        data: {
+          success: response?.success,
+          message: response?.message,
+          appointment: response,
+        },
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.ServerError,
+        data: {
+          success: false,
+          message: `Server error`,
+        },
+      };
+    }
+  }
+
+
+  async getDashdata(req: any,id:any) {
+    try {
+     console.log(id,"doctorId in dashhh")
+      const response = await this.doctorRepository.getDashdata(id);
+     
+      console.log(response, "profile responseeeeeeeeeee in doctorusecase");
       return {
         status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
         data: {

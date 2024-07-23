@@ -28,4 +28,9 @@ interface BookedSlot {
   date: string;
   timeslots: string[];
 }
+
+export interface CallAcceptedData {
+  to: string;
+  ans: any; 
+}
 export default IDoctorBody;

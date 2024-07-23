@@ -36,7 +36,7 @@ class OtpRepository {
           message: "OTP doesnt match",
         };
       }
-        
+
       return {
         success: true,
         message: "OTP matched",

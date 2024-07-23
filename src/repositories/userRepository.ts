@@ -217,7 +217,7 @@ class DoctorRepository {
 
   async findAppointmentById(userId: string) {
     try {
-      const user = await Appointment.find({ userId }).populate("doctorId");
+      const user = await Appointment.find({ userId }).populate("doctorId").populate('userId');
       // Replace 'email' with the actual field name in your schema
       console.log(user, "userrrrrrrrrrrrrrrrrr");
       //return user ? user._id.toString() : null;
@@ -287,6 +287,33 @@ class DoctorRepository {
         message: "user details fetched",
         data: appointment,
       };
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      return null;
+    }
+  }
+
+  async AppointmentById(id:string) {
+    try {
+      const appointments = await Appointment.findById(id)
+      console.log(appointments,"confirmation");
+    
+      if (appointments) {
+        console.log()
+       const appStatus=appointments.status
+        await appointments.save()
+        return {
+          success: true,
+          message: " data accesses successfully",
+          data: appStatus,
+        };
+        
+      }
+      return {
+        success: true,
+        message: "No data found",
+      };
+      
     } catch (error) {
       console.error("Error finding user by email:", error);
       return null;

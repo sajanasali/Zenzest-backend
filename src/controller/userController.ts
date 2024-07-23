@@ -215,6 +215,21 @@ class userController{
           });
         }
       } 
-
+  
+      async getStatus(req: Request, res: Response) {
+        try {
+          console.log("inside usercontroller")
+         const appId=req.params.id
+         console.log("appointment id in usercontrol",appId )
+          const response = await this.userUsecase.getStatus(req,appId);
+         console.log(response,"responseeeeeeeeeee")
+          res.status(response.status).send(response.data.user);
+        } catch (error) {
+          res.status(500).send({
+            success: false,
+            message: "server error",
+          });
+        }
+      }
 }
 export default userController;

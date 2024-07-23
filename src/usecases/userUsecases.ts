@@ -61,7 +61,7 @@ class userUsecases {
           status: HttpStatus.ServerError,
           data: {
             success: false,
-            message: "Retry another password by matching confirmation",
+            message: "Retry another password by matching confirmation like uppercase,lowercase,numbers and symbols",
           },
         };
       }
@@ -860,6 +860,29 @@ class userUsecases {
       const id=req.body[0]._id
       const response = await this.userRepository.findAppointmentByIdChangeStatus(id);
       console.log(response, "appointment");
+      return {
+        status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
+        data: {
+          success: response?.success,
+          message: response?.message,
+          user: response,
+        },
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.ServerError,
+        data: {
+          success: false,
+          message: `Server error`,
+        },
+      };
+    }
+  }
+  async getStatus(req: any,id:string) {
+    try {
+      console.log("inside usecases")
+      const response = await this.userRepository.AppointmentById(id);
+      console.log(response, "profile responseeeeeeeeeee in usercase");
       return {
         status: response?.success ? HttpStatus.Success : HttpStatus.ServerError,
         data: {

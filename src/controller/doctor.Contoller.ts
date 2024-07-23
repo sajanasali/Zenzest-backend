@@ -266,6 +266,7 @@ async todayAppointment(req:Request,res:Response){
         try {
           
          const appId=req.params.id
+         console.log("appointment id",appId)
           const response = await this.doctorUsecase.getStatus(req,appId);
          console.log(response,"responseeeeeeeeeee")
           res.status(response.status).send(response.data.user);
@@ -276,6 +277,68 @@ async todayAppointment(req:Request,res:Response){
           });
         }
       }
+
+      async prescription(req: Request, res: Response) {
+        try {
+          
+         const appId=req.params.id
+         console.log("appointment id",appId)
+          const response = await this.doctorUsecase.prescription(req,appId);
+         console.log(response,"responseeeeeeeeeee")
+          res.status(response.status).send(response.data.user);
+        } catch (error) {
+          res.status(500).send({
+            success: false,
+            message: "server error",
+          });
+        }
+      }
+      async completed(req: Request, res: Response) {
+        try {
+          
+         const appId=req.params.id
+         console.log("appointment id",appId)
+          const response = await this.doctorUsecase.completed(appId);
+         console.log(response,"responseeeeeeeeeee")
+          res.status(response.status).send(response.data.appointment);
+        } catch (error) {
+          res.status(500).send({
+            success: false,
+            message: "server error",
+          });
+        }
+      }
+
+      async prescriptioncompleted(req: Request, res: Response) {
+        try {
+          
+         const appId=req.params.id
+         console.log("appointment id",appId)
+          const response = await this.doctorUsecase.prescriptioncompleted(appId);
+         console.log(response,"responseeeeeeeeeee")
+          res.status(response.status).send(response.data.appointment);
+        } catch (error) {
+          res.status(500).send({
+            success: false,
+            message: "server error",
+          });
+        }
+      }
+
+      async getDashdata(req:Request,res:Response){
+        try{
+          console.log()
+          const doctorId=req.user.id
+     const response=await this.doctorUsecase.getDashdata(req,doctorId)
+     res.status(response.status).send(response.data)
+        }catch (error) {
+          res.status(500).send({
+            success: false,
+            message: "server error",
+          });
+        }
+      }
+
 }
 
 export default DoctorController;

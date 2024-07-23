@@ -132,4 +132,19 @@ Router.patch('/confirmAppointment/:id',(req:Request,res:Response)=>{
 Router.get('/getStatus/:id',(req:Request,res:Response)=>{
   doctorcontroller.getStatus(req,res)
 })
+Router.put('/prescription/:id',(req:Request,res:Response)=>{
+  doctorcontroller.prescription(req,res)
+})
+
+Router.put('/appointment-completed/:id',(req:Request,res:Response)=>{
+  doctorcontroller.completed(req,res)
+})
+Router.put('/prescription-completed/:id',(req:Request,res:Response)=>{
+  doctorcontroller.prescriptioncompleted(req,res)
+})
+Router.get('/getDashdata',protectDoctor,(req:Request,res:Response)=>{
+  console.log("dashdataaaa")
+  doctorcontroller.getDashdata(req,res)
+})
+
 export default Router;

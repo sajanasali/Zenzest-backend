@@ -100,4 +100,8 @@ Router.post("/cancelAppointment", (req: Request, res: Response) => {
   console.log(req.body, "body in payment");
   Usercontroller.cancelAppointment(req, res);
 });
+Router.get('/getAppstatus/:id',(req:Request,res:Response)=>{
+  console.log("inside user router")
+  Usercontroller.getStatus(req,res)
+})
 export default Router;

@@ -3,9 +3,11 @@ import Appointment from "../model/appointment.Model";
 import DoctorBody from "../interfaces/DoctorBody";
 import bodyParser from "body-parser";
 import mongoose, { Types } from "mongoose";
-import User from "../model/userModel"
+import User from "../model/userModel";
 import AppointmentModel from "../model/appointment.Model";
-const ObjectId=mongoose.Types.ObjectId
+import { ObjectId } from "mongoose";
+const ObjectId = mongoose.Types.ObjectId;
+
 class DoctorRepository {
   async createUser(details: DoctorBody) {
     try {
@@ -193,7 +195,7 @@ class DoctorRepository {
           slots: 1,
           fees: 1,
           isBlocked: 1,
-          compensation:1
+          compensation: 1,
         }
       );
       console.log(user, "userrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
@@ -214,39 +216,36 @@ class DoctorRepository {
     }
   }
   async findTimeSlotsByDate(doctorId: any, date: string) {
-    console.log("inside the doctor repository")
-    console.log(doctorId,"doctorIdddddd inside repository")
-     const doctor=await Doctors.findById(doctorId)
-      const email=doctor?.email
-   
-      const pipeline = [
-        {
-          $match: {
-            email: email, // Match doctor by ID
-          },
+    console.log("inside the doctor repository");
+    console.log(doctorId, "doctorIdddddd inside repository");
+    const doctor = await Doctors.findById(doctorId);
+    const email = doctor?.email;
+
+    const pipeline = [
+      {
+        $match: {
+          email: email, // Match doctor by ID
         },
-  {
-          $unwind: "$slots", // Deconstruct slots array
+      },
+      {
+        $unwind: "$slots", // Deconstruct slots array
+      },
+      {
+        $match: {
+          "slots.date": date, // Match slots by date
         },
-        {
-          $match: {
-            "slots.date": date, // Match slots by date
-          },
+      },
+      {
+        $project: {
+          _id: 0,
+          timeslots: "$slots.timeslots", // Project only the timeslots array
         },
-        {
-          $project: {
-            _id: 0,
-            timeslots: "$slots.timeslots", // Project only the timeslots array
-          },
-        },
-  
-        
-      ];
-   
+      },
+    ];
 
     const result = await Doctors.aggregate(pipeline).exec();
-    console.log(result,"resulkthhhhhhhhhhh")
-    
+    console.log(result, "resulkthhhhhhhhhhh");
+
     return result.length > 0 ? result[0].timeslots : []; // Return the timeslots array if found, otherwise an empty array
   }
 
@@ -289,8 +288,8 @@ class DoctorRepository {
   }
 
   async findBookedSlotsByDate(doctorId: string, date: any) {
-    const doctor=await Doctors.findById(doctorId)
-      const email=doctor?.email
+    const doctor = await Doctors.findById(doctorId);
+    const email = doctor?.email;
     const pipeline = [
       {
         $match: {
@@ -319,7 +318,10 @@ class DoctorRepository {
 
   async findallAppointments() {
     try {
-      const appointments = await Appointment.find({}).populate("userId").sort({slotBooked:-1});
+      const appointments = await Appointment.find({})
+        .populate("userId")
+        .populate("doctorId")
+        .sort({ slotBooked: -1 });
       console.log(appointments);
       console.log(appointments, "userrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
       if (!appointments) {
@@ -339,165 +341,342 @@ class DoctorRepository {
     }
   }
 
-  async todayAppointments(id:string){
-    try{
-      
-      const doctor=await Doctors.findById(id)
-      const email=doctor?.email
-   const date:Date=new Date()
-   let formtDate=date.toLocaleDateString()
-   
-   console.log(date,"Today")
-   console.log(formtDate,"Today")
-   
-      
-      
+  async todayAppointments(id: string) {
+    try {
+      const doctor = await Doctors.findById(id);
+      const email = doctor?.email;
+      const date: Date = new Date();
+      let formtDate = date.toLocaleDateString();
+
+      console.log(date, "Today");
+      console.log(formtDate, "Today");
 
       const pipeline = [
-        
-          {
-            $match:{
-          email:email
-         }
-        },{
-          $unwind:"$bookedSlots"
-        },{
-          $match:{
-            "bookedSlots.date":formtDate
-          }
-        },{
-          $project:{
-            "bookedSlots._id":1
-          }
-        }
-        
+        {
+          $match: {
+            email: email,
+          },
+        },
+        {
+          $unwind: "$bookedSlots",
+        },
+        {
+          $match: {
+            "bookedSlots.date": formtDate,
+          },
+        },
+        {
+          $project: {
+            "bookedSlots._id": 1,
+          },
+        },
       ];
-  //     
-   const appointmentsId=await Doctors.aggregate(pipeline).exec()
-   
-  
-   console.log(appointmentsId,"appointment for today")
-   if (!appointmentsId) {
-    return {
-      success: true,
-      message: "No data found",
-    };
-  }
-  return {
-    success: true,
-    message: " data accesses successfully",
-    data: appointmentsId,
-  };
-    }catch(error){
+      //
+      const appointmentsId = await Doctors.aggregate(pipeline).exec();
+
+      console.log(appointmentsId, "appointment for today");
+      if (!appointmentsId) {
+        return {
+          success: true,
+          message: "No data found",
+        };
+      }
+      return {
+        success: true,
+        message: " data accesses successfully",
+        data: appointmentsId,
+      };
+    } catch (error) {
       console.error("Error finding user by email:", error);
       return null;
     }
   }
 
-
-  async cancelAppointment(id:string) {
+  async cancelAppointment(id: string) {
     try {
-      const appointments = await Appointment.findById(id)
+      const appointments = await Appointment.findById(id);
       console.log(appointments);
-    
-      if(!appointments){
-        return{
-          success:true,
-          message:"appointment not found"
-        }
+
+      if (!appointments) {
+        return {
+          success: true,
+          message: "appointment not found",
+        };
       }
 
       let userRefund = appointments.amountPaid;
-    const user = await User.findById(appointments.userId);
-    if (user) {
-      let prev = user.wallet;
-      console.log(prev);
-      user.wallet += userRefund;
-      console.log(460, user.wallet);
-      await user.save();
-    }
-        const doctor = await Doctors.findById(appointments.doctorId);
-        if(doctor){
-        const slot=appointments.slotBooked
-        let part=slot.split(' ');
-        let datepart=part[0]+' '+part[1]+' '+part[2]
-        let timepart=part[3]
-        const slotIndex =doctor?.slots.findIndex((item) => item.date === datepart);
+      const user = await User.findById(appointments.userId);
+      if (user) {
+        let prev = user.wallet;
+        console.log(prev);
+        user.wallet += userRefund;
+        console.log(460, user.wallet);
+        await user.save();
+      }
+      const doctor = await Doctors.findById(appointments.doctorId);
+      if (doctor) {
+        const slot = appointments.slotBooked;
+        let part = slot.split(" ");
+        let datepart = part[0] + " " + part[1] + " " + part[2];
+        let timepart = part[3];
+        const slotIndex = doctor?.slots.findIndex(
+          (item) => item.date === datepart
+        );
         if (slotIndex !== -1) {
           doctor.slots[slotIndex].timeslots.push(timepart);
           await doctor.save();
         }
-        }
-        appointments.status='Cancelled'
-        await appointments.save()
-        return {
-          success: true,
-          message: " data accesses successfully",
-          data: appointments,
-        };
-        
       }
-      
-      
-     catch (error) {
+      appointments.status = "Cancelled";
+      await appointments.save();
+      return {
+        success: true,
+        message: " data accesses successfully",
+        data: appointments,
+      };
+    } catch (error) {
       console.error("appointment is not found:", error);
       return null;
     }
   }
 
-  async confirmAppointment(id:string) {
+  async confirmAppointment(id: string) {
     try {
-      const appointments = await Appointment.findById(id)
-      console.log(appointments,"confirmation");
-    
+      const appointments = await Appointment.findById(id);
+      console.log(appointments, "confirmation");
+
       if (appointments) {
-        console.log()
-        appointments.status='Confirmed';
-        await appointments.save()
+        console.log();
+        appointments.status = "Confirmed";
+        await appointments.save();
         return {
           success: true,
           message: " data accesses successfully",
           data: appointments,
         };
-        
       }
       return {
         success: true,
         message: "No data found",
       };
-      
     } catch (error) {
       console.error("Error finding user by email:", error);
       return null;
     }
   }
 
-  async AppointmentById(id:string) {
+  async AppointmentById(id: string) {
     try {
-      const appointments = await Appointment.findById(id)
-      console.log(appointments,"confirmation");
-    
+      const appointments = await Appointment.findById(id);
+      console.log(appointments, "confirmation");
+
       if (appointments) {
-        console.log()
-       const appStatus=appointments.status
-        await appointments.save()
+        console.log();
+        const appStatus = appointments.status;
+        await appointments.save();
         return {
           success: true,
           message: " data accesses successfully",
           data: appStatus,
         };
-        
       }
       return {
         success: true,
         message: "No data found",
       };
-      
     } catch (error) {
       console.error("Error finding user by email:", error);
       return null;
     }
   }
 
+  async presUpdate(id: string, req: any) {
+    try {
+      const { diagnosis, medicines, advice } = req.body;
+      const appointments = await Appointment.findById(id);
+      if (appointments) {
+        console.log();
+        const response = await Appointment.findByIdAndUpdate(id, {
+          diagnosis,
+          prescription: medicines,
+          advice,
+        });
+        return {
+          success: true,
+          message: " appointment data accesses successfully",
+          data: response,
+        };
+      }
+      return {
+        success: true,
+        message: "No data found",
+      };
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      return null;
+    }
+  }
+
+  async completed(id: string) {
+    try {
+      const appointments = await Appointment.findById(id);
+      console.log(appointments, "confirmation");
+
+      if (appointments) {
+        console.log();
+        appointments.status = "Completed";
+        await appointments.save();
+        return {
+          success: true,
+          message: " data accesses successfully",
+          data: appointments,
+        };
+      }
+      return {
+        success: true,
+        message: "No data found",
+      };
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      return null;
+    }
+  }
+
+  async prescriptioncompleted(id: string) {
+    try {
+      const appointments = await Appointment.findById(id);
+      console.log(appointments, "confirmation");
+
+      if (appointments) {
+        console.log();
+        appointments.status = "Prescribed";
+        await appointments.save();
+        return {
+          success: true,
+          message: " data accesses successfully",
+          data: appointments,
+        };
+      }
+      return {
+        success: true,
+        message: "No data found",
+      };
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      return null;
+    }
+  }
+
+  async getDashdata(id: string) {
+    try {
+      console.log("inside dash repo1", id);
+
+      const appointments = await Appointment.find({ doctorId: id });
+      console.log("inside dash repo2");
+      console.log(appointments, "appointments dash");
+      const doctor = await Doctors.findById(id);
+      console.log(doctor, "doctorrrrrr dash  3");
+      // Annual details
+      const annualAppointments = appointments?.filter((appointment) => {
+        const appointmentYear = new Date(appointment?.slotBooked).getFullYear();
+        console.log(appointmentYear, "appointment year");
+        return appointmentYear === new Date().getFullYear();
+      });
+
+      let annualTotalAppointments = 0;
+      annualAppointments.forEach((appointment) => {
+        annualTotalAppointments++;
+      });
+
+      // Monthly details
+      const currentMonth = new Date().getMonth();
+      const monthlyAppointments = appointments.filter((appointment) => {
+        return new Date(appointment.slotBooked).getMonth() === currentMonth;
+      });
+      console.log(419, monthlyAppointments);
+      let monthlyRevenue = 0;
+      let monthlyTotalAppointments = 0;
+      monthlyAppointments.forEach((appointment) => {
+        monthlyRevenue += appointment.amountPaid || 0;
+        monthlyTotalAppointments++;
+      });
+
+      // Weekly details
+      const startOfWeek = new Date();
+      startOfWeek.setHours(0, 0, 0, 0);
+      const weeklyAppointments = appointments.filter(
+        (appointment) => new Date(appointment.slotBooked) >= startOfWeek
+      );
+      let weeklyRevenue = 0;
+      let weeklyTotalAppointments = 0;
+      weeklyAppointments.forEach((appointment) => {
+        weeklyRevenue += appointment.amountPaid || 0;
+        weeklyTotalAppointments++;
+      });
+
+      // Additional logic for appointments by month
+      interface AppointmentData {
+        month: any;
+        noOfAppointments: number;
+        totalAmount: number;
+      }
+
+      type AppointmentsByMonth = {
+        [key: string]: AppointmentData;
+      };
+      let appointmentsByMonth: AppointmentsByMonth = {};
+      const currentYear = new Date().getFullYear();
+      for (let month = 0; month < 12; month++) {
+        appointmentsByMonth[`${currentYear}-${month + 1}`] = {
+          month: `${currentYear}-${month + 1}`,
+          noOfAppointments: 0,
+          totalAmount: 0,
+        };
+      }
+      console.log(447, appointmentsByMonth);
+      appointments.forEach((appointment) => {
+        if (appointment.doctorId.toString() === doctor?._id.toString()) {
+          const appointmentYear = new Date(
+            appointment.slotBooked
+          ).getFullYear();
+          if (currentYear === appointmentYear) {
+            const month = new Date(appointment.slotBooked).getMonth() + 1;
+            const key = `${currentYear}-${month}`;
+            if (!appointmentsByMonth[key]) {
+              appointmentsByMonth[key] = {
+                month: key,
+                noOfAppointments: 0,
+                totalAmount: 0,
+              };
+            }
+            appointmentsByMonth[key].noOfAppointments++;
+            //appointmentsByMonth[key].totalAmount += appointment.amountPaid || 0;
+          }
+        }
+      });
+      console.log(463, appointmentsByMonth);
+      const response = {
+        monthlyAppointments: Object.values(appointmentsByMonth),
+        weeklyAppointments,
+        weeklyRevenue,
+        weeklyTotalAppointments,
+        monthlyRevenue,
+        monthlyTotalAppointments,
+        annualAppointments,
+
+        annualTotalAppointments,
+      };
+      if (response) {
+        return {
+          success: true,
+          message: " appointment data accesses successfully",
+          data: response,
+        };
+      }
+    } catch (error) {
+      console.log("error in dashboard data", error);
+      return null;
+    }
+  }
 }
 export default DoctorRepository;

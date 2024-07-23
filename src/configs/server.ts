@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 import cors from "cors";
 import morgan  from "morgan";
 import connectDB from "./db";
-const createServer=()=>{
+const CreateServer=()=>{
  const app= express();
   connectDB();
 
@@ -11,10 +11,11 @@ const createServer=()=>{
 	app.use(express.urlencoded({ extended: true }))
     app.use(morgan("dev"))
 	app.use(cors({
-		origin: "*"
+		origin: "*",
+		credentials: true
 	}))
      return app
 
 }
 
-export default createServer
+export default CreateServer
